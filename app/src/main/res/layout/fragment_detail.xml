@@ -1,0 +1,77 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="pl.allenotify.anotify.DetailFragment">
+
+    <EditText
+        android:id="@+id/detail_search_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/search_name"
+        android:inputType="text"
+        android:maxLines="1"
+        android:maxLength="50"
+        android:singleLine="true"
+        style="@style/DetailItemMargin"/>
+
+    <EditText
+        android:id="@+id/detail_item_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/search_item_title"
+        android:inputType="text"
+        android:maxLines="1"
+        android:maxLength="50"
+        android:singleLine="true"
+        style="@style/DetailItemMargin"/>
+
+    <Spinner
+        android:id="@+id/detail_category_main_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+
+    </Spinner>
+
+    <EditText
+        android:id="@+id/detail_minimal_price"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/minimal_price"
+        android:inputType="numberDecimal"
+        android:maxLines="1"
+        android:maxLength="12"
+        android:singleLine="true"
+        style="@style/DetailItemMargin"/>
+
+    <EditText
+        android:id="@+id/detail_maximum_price"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/maximum_price"
+        android:inputType="numberDecimal"
+        android:maxLines="1"
+        android:maxLength="12"
+        android:singleLine="true"
+        style="@style/DetailItemMargin"/>
+
+    <Spinner
+        android:id="@+id/detail_item_state_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+
+    </Spinner>
+
+    <Spinner
+        android:id="@+id/detail_sales_format_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+
+    </Spinner>
+
+
+</LinearLayout>
