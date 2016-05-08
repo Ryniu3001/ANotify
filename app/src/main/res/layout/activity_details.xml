@@ -8,6 +8,6 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:background="@android:color/holo_blue_bright"
+
     tools:context="pl.allenotify.anotify.DetailActivity"
     tools:ignore="MergeRootFrame" />

@@ -30,6 +30,9 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Activity logowania użytkownika.
+ */
 public class LoginActivity extends AppCompatActivity {
 
     private UserLoginTask mAuthTask = null;

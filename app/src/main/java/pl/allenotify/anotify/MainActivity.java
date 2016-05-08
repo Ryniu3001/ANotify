@@ -1,21 +1,28 @@
 package pl.allenotify.anotify;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
+import android.view.View;
 
 import pl.allenotify.anotify.model.UserSearchContent;
 
+/**
+ * Główne activity - lista wyszukiwań
+ */
 public class MainActivity extends AppCompatActivity implements MainFragment.OnListFragmentInteractionListener {
 
     public static final String INTENT_ITEM_ID = "pl.allenotify.item.id";
     public static final String INTENT_ITEM_NAME = "pl.allenotify.item.name";
+    public static Context appContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        appContext = getApplicationContext();
         setContentView(R.layout.activity_main);
     }
 
@@ -44,7 +51,13 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
     }
 
     @Override
+    public void contextMenuLong(UserSearchContent.UserSearchItem item, View v) {
+        openContextMenu(v);
+    }
+
+    @Override
     public void onBackPressed() {
        moveTaskToBack(true);
     }
+
 }

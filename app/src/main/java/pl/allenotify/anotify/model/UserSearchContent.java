@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Helper class for providing sample content for user interfaces created by
- * Android template wizards.
- * <p>
- * TODO: Replace all uses of this class before publishing your app.
+ * Zawiera identyfikatory pól usługi oraz listę wyszukiwanych przedmiotów.
+ * Klasa zagnieżdżona reprezentuje obiekt wyszukiwania
  */
 public class UserSearchContent {
 
@@ -20,7 +18,7 @@ public class UserSearchContent {
     public static final String STATUS_ID = "StatusId";
 
     public static class UserSearchItem {
-        private final String id;
+        private String id;
         private String name;
         private String countFound;
         private String date;

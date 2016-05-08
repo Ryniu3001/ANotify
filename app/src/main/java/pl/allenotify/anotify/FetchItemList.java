@@ -27,6 +27,7 @@ import pl.allenotify.anotify.model.UserSearchContent;
 
 /**
  * Created by marcin on 03.04.16.
+ * Task odpowiedzialny za pobranie listy wyszukiwań użytkownika i zwrócenie jej w wygodnej postaci.
  */
 public class FetchItemList extends AsyncTask<Void, Void, List<UserSearchContent.UserSearchItem>> {
 
@@ -56,7 +57,7 @@ public class FetchItemList extends AsyncTask<Void, Void, List<UserSearchContent.
             urlConnection.setRequestProperty("Content-Type", "application/json");
             SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
             String token = sharedPrefs.getString(mContext.getString(R.string.prefs_access_token_key),"");
-            Log.v(LOG_TAG, "TOKEN:" + token);
+            //Log.v(LOG_TAG, "TOKEN:" + token);
             urlConnection.setRequestProperty("Authorization", "bearer " + token);
 
             urlConnection.connect();

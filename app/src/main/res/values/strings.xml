@@ -21,11 +21,20 @@
     <string name="minimal_price">Minimal price</string>
     <string name="maximum_price">Maximum price</string>
 
+    <string name="context_menu_remove">Usuń</string>
+
     <string-array name="planets_array">
         <item>Wszystkie</item>
         <item>Kup Teraz</item>
         <item>Licytacje</item>
     </string-array>
+
+    <string-array name="item_states_array">
+        <item>Wszystkie</item>
+        <item>Nowe</item>
+        <item>Używane</item>
+    </string-array>
+
 
 
 

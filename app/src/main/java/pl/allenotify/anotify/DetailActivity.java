@@ -4,6 +4,9 @@ import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+/**
+ * Activity szczegółów wyszukiwania (edycja/dodawanie)
+ */
 public class DetailActivity extends AppCompatActivity implements DetailFragment.OnFragmentInteractionListener {
 
     @Override

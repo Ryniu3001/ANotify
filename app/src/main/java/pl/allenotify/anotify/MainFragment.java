@@ -24,9 +24,7 @@ import pl.allenotify.anotify.model.UserSearchContent.UserSearchItem;
  */
 public class MainFragment extends Fragment {
 
-    // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
-    // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
 
@@ -75,11 +73,18 @@ public class MainFragment extends Fragment {
             }
             mAdapter = new MyMainRecyclerViewAdapter(UserSearchContent.items, mListener);
             recyclerView.setAdapter(mAdapter);
+            registerForContextMenu(recyclerView);
+            recyclerView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    getActivity().openContextMenu(recyclerView);
+                    return false;
+                }
+            });
 
         }
         return view;
     }
-
 
     @Override
     public void onAttach(Context context) {
@@ -131,5 +136,9 @@ public class MainFragment extends Fragment {
         void onListFragmentInteraction(UserSearchItem item);
 
         void onListFragmentStatusIconInteraction(UserSearchItem item);
-    }
+
+        void contextMenuLong(UserSearchItem item, View v);
+     }
+
+
 }

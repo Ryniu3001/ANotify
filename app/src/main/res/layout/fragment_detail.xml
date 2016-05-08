@@ -27,13 +27,29 @@
         android:singleLine="true"
         style="@style/DetailItemMargin"/>
 
-    <Spinner
-        android:id="@+id/detail_category_main_spinner"
-        android:layout_width="match_parent"
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        >
+        android:text="Kategoria"
+        android:editable="false"/>
 
-    </Spinner>
+    <LinearLayout
+        android:id="@+id/spinnerCategoryGroupLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="16dp">
+
+
+        <Spinner
+            android:id="@+id/detail_main_category_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            ></Spinner>
+
+    </LinearLayout>
+
+
 
     <EditText
         android:id="@+id/detail_minimal_price"
@@ -57,18 +73,32 @@
         android:singleLine="true"
         style="@style/DetailItemMargin"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Stan przedmiotu"
+        android:editable="false"/>
+
     <Spinner
         android:id="@+id/detail_item_state_spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
         >
 
     </Spinner>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Format sprzedaży"
+        android:editable="false"
+        android:layout_marginTop="16dp"/>
     <Spinner
         android:id="@+id/detail_sales_format_spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
         >
 
     </Spinner>
