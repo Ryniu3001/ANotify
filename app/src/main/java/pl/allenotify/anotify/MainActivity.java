@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
     }
 
     @Override
-    public void contextMenuLong(UserSearchContent.UserSearchItem item, View v) {
+    public void onListLongClick(UserSearchContent.UserSearchItem item, View v) {
         openContextMenu(v);
     }
 

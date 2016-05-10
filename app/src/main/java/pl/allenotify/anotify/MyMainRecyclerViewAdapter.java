@@ -74,7 +74,7 @@ public class MyMainRecyclerViewAdapter extends RecyclerView.Adapter<MyMainRecycl
         holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                mListener.contextMenuLong(holder.mItem, v);
+                mListener.onListLongClick(holder.mItem, v);
                 return true;
             }
         });
@@ -85,7 +85,7 @@ public class MyMainRecyclerViewAdapter extends RecyclerView.Adapter<MyMainRecycl
         return mValues.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
         public final View mView;
         public final TextView mNameView;
         public final TextView mCountFoundView;
@@ -100,8 +100,9 @@ public class MyMainRecyclerViewAdapter extends RecyclerView.Adapter<MyMainRecycl
             mCountFoundView = (TextView) itemView.findViewById(R.id.count_found);
             mDateView = (TextView) itemView.findViewById(R.id.date);
             mStatusView = (ImageView) itemView.findViewById(R.id.list_status_icon);
+            itemView.setOnCreateContextMenuListener(this);
 
-            mView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+/*            mView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
                 @Override
                 public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
 
@@ -114,13 +115,27 @@ public class MyMainRecyclerViewAdapter extends RecyclerView.Adapter<MyMainRecycl
                         }
                     });
                 }
-            });
+            });*/
 
         }
+
 
         @Override
         public String toString() {
             return super.toString() + " '" + mNameView.getText() + "'";
+        }
+
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+            menu.setHeaderTitle(mItem.getName());
+            menu.add(MainActivity.appContext.getString(R.string.context_menu_remove)).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    DeleteItem task = new DeleteItem();
+                    task.execute(mItem.getId());
+                    return false;
+                }
+            });
         }
     }
 

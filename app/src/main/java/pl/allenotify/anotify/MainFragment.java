@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 
 import pl.allenotify.anotify.model.UserSearchContent;
 import pl.allenotify.anotify.model.UserSearchContent.UserSearchItem;
+import pl.allenotify.anotify.task.FetchItemList;
 
 /**
  * A fragment representing a list of Items.
@@ -132,12 +133,11 @@ public class MainFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onListFragmentInteraction(UserSearchItem item);
 
         void onListFragmentStatusIconInteraction(UserSearchItem item);
 
-        void contextMenuLong(UserSearchItem item, View v);
+        void onListLongClick(UserSearchItem item, View v);
      }
 
 

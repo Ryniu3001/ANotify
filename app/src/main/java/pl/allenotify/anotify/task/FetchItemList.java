@@ -1,4 +1,4 @@
-package pl.allenotify.anotify;
+package pl.allenotify.anotify.task;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -11,9 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DateFormat;
@@ -23,6 +21,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import pl.allenotify.anotify.R;
 import pl.allenotify.anotify.model.UserSearchContent;
 
 /**
@@ -44,49 +46,65 @@ public class FetchItemList extends AsyncTask<Void, Void, List<UserSearchContent.
 
     @Override
     protected List<UserSearchContent.UserSearchItem> doInBackground(Void... params) {
-        HttpURLConnection urlConnection = null;
-        BufferedReader reader = null;
-
+/*        HttpURLConnection urlConnection = null;
+        BufferedReader reader = null;*/
         //Contain raw JSON response
         String responseJsonStr = null;
-
+        OkHttpClient client = new OkHttpClient();
         try {
+
+            Request.Builder builder = new Request.Builder();
             URL url = new URL("http://webapi.allenotify.pl/SearchItem");
-            urlConnection = (HttpURLConnection) url.openConnection();
+           /* urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
-            urlConnection.setRequestProperty("Content-Type", "application/json");
+            urlConnection.setRequestProperty("Content-Type", "application/json");*/
             SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
             String token = sharedPrefs.getString(mContext.getString(R.string.prefs_access_token_key),"");
             //Log.v(LOG_TAG, "TOKEN:" + token);
+/*
             urlConnection.setRequestProperty("Authorization", "bearer " + token);
+*/
 
-            urlConnection.connect();
-            Log.v(LOG_TAG, "RESPONSE CODE: " + String.valueOf(urlConnection.getResponseCode()));
-            Log.v(LOG_TAG, "RESPONSE MESSAGE: " + urlConnection.getResponseMessage());
+            builder.url(url).addHeader("Accept", "application/json")
+                    .addHeader("Authorization", "bearer " + token );
+            Request request = builder.build();
 
-            if (urlConnection.getResponseCode() != HttpURLConnection.HTTP_OK){
+            /*urlConnection.connect();*/
+/*            Log.v(LOG_TAG, "RESPONSE CODE: " + String.valueOf(urlConnection.getResponseCode()));
+            Log.v(LOG_TAG, "RESPONSE MESSAGE: " + urlConnection.getResponseMessage());*/
+
+/*            if (urlConnection.getResponseCode() != HttpURLConnection.HTTP_OK){
+                return null;
+            }*/
+
+            Response response = client.newCall(request).execute();
+            Log.v(LOG_TAG, "RESPONSE CODE: " + response.code());
+
+            if (response.code() != HttpURLConnection.HTTP_OK){
                 return null;
             }
 
             String line;
             StringBuffer buffer = new StringBuffer();
 
-            reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+            responseJsonStr = response.body().string();
+
+/*            reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
             while ((line = reader.readLine()) != null){
                 buffer.append(line);
             }
-            responseJsonStr = buffer.toString();
+            responseJsonStr = buffer.toString();*/
 
-            Log.v(LOG_TAG, "Login response: " + responseJsonStr);
+            Log.v(LOG_TAG, "RESPONSE BODY: " + responseJsonStr);
 
         } catch (IOException e) {
             Log.e(LOG_TAG, "ERROR! No connection?", e);
             return null;
         }finally {
-            if (urlConnection != null)
+/*            if (urlConnection != null)
                 urlConnection.disconnect();
             if (reader != null)
-                try { reader.close();} catch (IOException e) { Log.e(LOG_TAG, "Error: Cannot close reader", e); }
+                try { reader.close();} catch (IOException e) { Log.e(LOG_TAG, "Error: Cannot close reader", e); }*/
             mContext = null;
         }
 
@@ -99,12 +117,23 @@ public class FetchItemList extends AsyncTask<Void, Void, List<UserSearchContent.
         return null;
     }
 
+    /**
+     * Powiadamia adapter listy o zmianach.
+     * @param userSearchItems
+     */
     @Override
     protected void onPostExecute(List<UserSearchContent.UserSearchItem> userSearchItems) {
         mListAdapter.notifyDataSetChanged();
         mListAdapter = null;
     }
 
+    /**
+     * Przetwarza odpowiedź i dodaje przedmioty do listy
+     * @param jsonStr
+     * @return
+     * @throws JSONException
+     * @throws ParseException
+     */
     private List<UserSearchContent.UserSearchItem> getDataFromJson(String jsonStr)
             throws JSONException, ParseException {
         JSONArray itemsArray = new JSONArray(jsonStr);
