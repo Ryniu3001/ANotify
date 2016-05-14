@@ -1,10 +1,22 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingLeft="8dp"
     android:orientation="vertical"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
     tools:context="pl.allenotify.anotify.DetailFragment">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/search_name"
+        android:editable="false"/>
     <EditText
         android:id="@+id/detail_search_name"
         android:layout_width="match_parent"
@@ -14,8 +26,14 @@
         android:maxLines="1"
         android:maxLength="50"
         android:singleLine="true"
+        android:paddingLeft="16dp"
         style="@style/DetailItemMargin"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/search_item_title"
+        android:editable="false"/>
     <EditText
         android:id="@+id/detail_item_title"
         android:layout_width="match_parent"
@@ -25,12 +43,13 @@
         android:maxLines="1"
         android:maxLength="50"
         android:singleLine="true"
+        android:paddingLeft="16dp"
         style="@style/DetailItemMargin"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Kategoria"
+        android:text="@string/category"
         android:editable="false"/>
 
     <LinearLayout
@@ -38,19 +57,17 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:animateLayoutChanges="true"
         android:paddingLeft="16dp">
-
-
-        <Spinner
-            android:id="@+id/detail_main_category_spinner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            ></Spinner>
 
     </LinearLayout>
 
 
-
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/minimal_price"
+        android:editable="false"/>
     <EditText
         android:id="@+id/detail_minimal_price"
         android:layout_width="match_parent"
@@ -60,8 +77,14 @@
         android:maxLines="1"
         android:maxLength="12"
         android:singleLine="true"
+        android:paddingLeft="16dp"
         style="@style/DetailItemMargin"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/maximum_price"
+        android:editable="false"/>
     <EditText
         android:id="@+id/detail_maximum_price"
         android:layout_width="match_parent"
@@ -71,12 +94,13 @@
         android:maxLines="1"
         android:maxLength="12"
         android:singleLine="true"
+        android:paddingLeft="16dp"
         style="@style/DetailItemMargin"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Stan przedmiotu"
+        android:text="@string/item_state"
         android:editable="false"/>
 
     <Spinner
@@ -91,7 +115,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Format sprzedaży"
+        android:text="@string/sales_format"
         android:editable="false"
         android:layout_marginTop="16dp"/>
     <Spinner
@@ -103,5 +127,10 @@
 
     </Spinner>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Województwo" />
 
 </LinearLayout>
+</ScrollView>

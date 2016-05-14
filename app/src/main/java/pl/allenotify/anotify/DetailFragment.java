@@ -9,12 +9,14 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -31,6 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pl.allenotify.anotify.model.CategoryContent;
+import pl.allenotify.anotify.model.SearchDetailContent;
+import pl.allenotify.anotify.task.GetTask;
 
 
 /**
@@ -41,15 +45,16 @@ import pl.allenotify.anotify.model.CategoryContent;
  * Use the {@link DetailFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class DetailFragment extends Fragment {
+public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
 
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String ARG_PARAM1 = "id";
+    private static final String ARG_PARAM2 = "name";
     List<Spinner> categorySpinners = new ArrayList<>();
     private LinearLayout mCatGroup;
+    SearchDetailContent.SearchDetailItem mSearchDetailItem = null;
 
-    private String mParam1;
-    private String mParam2;
+    private String searchId;
+    private String searchName;
 
     private OnFragmentInteractionListener mListener;
 
@@ -61,15 +66,15 @@ public class DetailFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
+     * @param id Parameter 1.
+     * @param name Parameter 2.
      * @return A new instance of fragment DetailFragment.
      */
-    public static DetailFragment newInstance(String param1, String param2) {
+    public static DetailFragment newInstance(String id, String name) {
         DetailFragment fragment = new DetailFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putString(ARG_PARAM1, id);
+        args.putString(ARG_PARAM2, name);
         fragment.setArguments(args);
         return fragment;
     }
@@ -78,8 +83,11 @@ public class DetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            searchId = getArguments().getString(ARG_PARAM1);
+            searchName = getArguments().getString(ARG_PARAM2);
+            GetTask getSearchDetailTask = new GetTask();
+            getSearchDetailTask.registerListener(this);
+            getSearchDetailTask.execute("http://webapi.allenotify.pl/SearchItem/1183");
         }
     }
 
@@ -99,8 +107,8 @@ public class DetailFragment extends Fragment {
         spinner.setAdapter(adapter);
 
         //Kategorie
-        categorySpinners.add((Spinner) view.findViewById(R.id.detail_main_category_spinner));
-        List<CategoryContent.CategoryItem> categoryList = new ArrayList<>();
+        //categorySpinners.add((Spinner) view.findViewById(R.id.detail_main_category_spinner));
+        //List<CategoryContent.CategoryItem> categoryList = new ArrayList<>();
 
         //Stan przedmiotu
         Spinner itemState = (Spinner) view.findViewById(R.id.detail_item_state_spinner);
@@ -110,10 +118,8 @@ public class DetailFragment extends Fragment {
         itemState.setAdapter(stateAdapter);
 
         //Pobranie głównych kategorii
-        FetchCategoryTask task= new FetchCategoryTask(null, categoryList);
-        task.execute();
-
-
+        //FetchCategoryTask task= new FetchCategoryTask("0", categoryList);
+        //task.execute();
 
         return view;
     }
@@ -123,6 +129,47 @@ public class DetailFragment extends Fragment {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
         }
+    }
+
+    private void fillViewsWithData(){
+        TextView searchNameView = (TextView)getActivity().findViewById(R.id.detail_search_name);
+        searchNameView.setText(mSearchDetailItem.getName());
+
+        TextView titleView = (TextView)getActivity().findViewById(R.id.detail_item_title) ;
+        titleView.setText(mSearchDetailItem.getTitle());
+
+        TextView minimalPriceView = (TextView)getActivity().findViewById(R.id.detail_minimal_price);
+        minimalPriceView.setText(mSearchDetailItem.getPriceMin().toString());
+
+        TextView maximumPriceView = (TextView)getActivity().findViewById(R.id.detail_maximum_price);
+        maximumPriceView.setText(mSearchDetailItem.getPriceMax().toString());
+
+        //Stan przedmiotu
+        Spinner itemState = (Spinner) getActivity().findViewById(R.id.detail_item_state_spinner);
+        ArrayAdapter<CharSequence> stateAdapter = ArrayAdapter.createFromResource(getActivity(),
+                R.array.item_states_array, android.R.layout.simple_spinner_item);
+        stateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        itemState.setAdapter(stateAdapter);
+        itemState.setSelection(mSearchDetailItem.getConditionId());
+
+        //Spinner z typem sprzedaży Kup Teraz / Licytacja
+        Spinner spinner = (Spinner)getActivity().findViewById(R.id.detail_sales_format_spinner);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
+                R.array.planets_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        itemState.setSelection(mSearchDetailItem.getOfferTypeId());
+
+        //Kategorie
+        for (SearchDetailContent.ChosenCategory chosenCategory : mSearchDetailItem.getSelectedCategories()){
+            addCategorySpinner(chosenCategory.getSiblings(), chosenCategory.getCategoryId().toString());
+            categorySpinners.get(categorySpinners.size()-1).setSelection(chosenCategory.getCategoryPositionOnSiblings());
+            //break;
+        }
+
+
+
+
     }
 
     @Override
@@ -141,6 +188,118 @@ public class DetailFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
+
+    /**
+     * Metody wywoływana przy wybraniu pozycji na spinerze kategorii.
+     * Inicjuje pobieranie podkategorii lub usuwa niepotrzebne Spinnery
+     * @param view Spinner na ktory klienieto
+     * @param id id pozycji ktora wybrano
+     */
+    private void chooseCategory(Spinner view, long id ){
+        int spinnerId = categorySpinners.indexOf(view);
+        if (spinnerId < categorySpinners.size()-1){
+            for (int i = categorySpinners.size()-1; i > spinnerId; i--){
+                mCatGroup.removeView(categorySpinners.get(i));
+                categorySpinners.remove(i);
+            }
+        }
+        if (id > 0) {
+            CategoryContent.CategoryItem item = (CategoryContent.CategoryItem) view.getSelectedItem();
+            List<CategoryContent.CategoryItem> cat = new ArrayList<>();
+            FetchCategoryTask t = new FetchCategoryTask(item.getId(), cat);
+            t.execute();
+        }
+    }
+
+    @Override
+    public void asyncTaskDone(String response) {
+        try {
+            parseSearchItemDetailResponse(response);
+            fillViewsWithData();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Dodaje nowy Spinner kategorii i zasila go listą.
+     * Jeśli
+     * @param categoryItems lista którą zasilany będzie spinner
+     * @param categoryId id wybranej kategorii, dla której dzieci są w liście categoryItems
+     */
+    private void addCategorySpinner(List<CategoryContent.CategoryItem> categoryItems, String categoryId){
+        if (categoryItems != null) {
+
+            ArrayAdapter<CategoryContent.CategoryItem> categoriesAdapter = new ArrayAdapter<CategoryContent.CategoryItem>(
+                    getActivity(), android.R.layout.simple_spinner_dropdown_item,
+                    categoryItems);
+
+            /**
+             * Przy tworzeniu widoku, pobieramy kategorie podając id=0.
+             * Dla tego przypadku nie dodajemy nowego Spinner ponieważ jest on na stałe widoku.
+             */
+            if (categoryId == null || "0".equals(categoryId)) {
+                categorySpinners.get(0).setAdapter(categoriesAdapter);
+            } else if (!categoryItems.isEmpty()) {
+                Spinner spinner = new Spinner(getActivity());
+                spinner.setAdapter(categoriesAdapter);
+                mCatGroup.addView(spinner);
+                categorySpinners.add(spinner);
+            }
+
+            SpinnerInteractionListener listener = new SpinnerInteractionListener();
+            categorySpinners.get(categorySpinners.size() - 1).setOnTouchListener(listener);
+            categorySpinners.get(categorySpinners.size() - 1).setOnItemSelectedListener(listener);
+        }
+    }
+
+    private void parseSearchItemDetailResponse(String response) throws JSONException {
+        JSONObject responseObject = new JSONObject(response);
+        mSearchDetailItem = new SearchDetailContent.SearchDetailItem();
+        mSearchDetailItem.setName(responseObject.getString(SearchDetailContent.NAME));
+        mSearchDetailItem.setTitle(responseObject.getString(SearchDetailContent.TITLE));
+        mSearchDetailItem.setSearchInDesc(responseObject.getBoolean(SearchDetailContent.SEARCH_IN_DESC));
+        mSearchDetailItem.setPriceMin(responseObject.getDouble(SearchDetailContent.PRICE_MIN));
+        mSearchDetailItem.setPriceMax(responseObject.getDouble(SearchDetailContent.PRICE_MAX));
+        mSearchDetailItem.setCategoryId(responseObject.getInt(SearchDetailContent.CATEGORY_ID));
+        mSearchDetailItem.setConditionId(responseObject.getInt(SearchDetailContent.CONDITION_ID));
+        mSearchDetailItem.setOfferTypeId(responseObject.getInt(SearchDetailContent.OFFER_TYPE_ID));
+        mSearchDetailItem.setLocalizationTypeId(responseObject.getInt(SearchDetailContent.LOCALIZATION_TYPE_ID));
+        mSearchDetailItem.setStateId(responseObject.getInt(SearchDetailContent.STATE_ID));
+        mSearchDetailItem.setCity(responseObject.getString(SearchDetailContent.CITY));
+        mSearchDetailItem.setPostCode(responseObject.getString(SearchDetailContent.POST_CODE));
+        mSearchDetailItem.setDistance(responseObject.getInt(SearchDetailContent.DISTANCE_ID));
+
+        List<SearchDetailContent.ChosenCategory> choosenCategoryList = new ArrayList<>();
+        JSONArray categories = new JSONArray(responseObject.getString(SearchDetailContent.CATEGORIES));
+
+        if (categories!=null) {
+            for (int i = 0; i < categories.length(); i++) {
+                JSONObject ob = categories.getJSONObject(i);
+                SearchDetailContent.ChosenCategory choosenCategory = new SearchDetailContent.ChosenCategory();
+                List<CategoryContent.CategoryItem> siblingCategories = new ArrayList<>();
+                choosenCategory.setCategoryId(ob.getInt(SearchDetailContent.SELECTED_CATEGORY_ID));
+                JSONArray siblings = ob.getJSONArray(SearchDetailContent.CATEGORIES);
+
+                for (int j = 0; j < siblings.length(); j++) {
+                    JSONObject jsonCategory = siblings.getJSONObject(j);
+                    CategoryContent.CategoryItem categoryItem = new CategoryContent.CategoryItem(
+                            String.valueOf(jsonCategory.getInt(CategoryContent.ID)),
+                            jsonCategory.getString(CategoryContent.NAME));
+
+                    if (choosenCategory.getCategoryId().toString().equals(categoryItem.getId()))
+                        choosenCategory.setCategoryPositionOnSiblings(j);
+                    siblingCategories.add(categoryItem);
+
+                }
+                choosenCategory.setSiblings(siblingCategories);
+                choosenCategoryList.add(choosenCategory);
+            }
+        }
+        mSearchDetailItem.setSelectedCategories(choosenCategoryList);
+
+    }
+
 
     /**
      * This interface must be implemented by activities that contain this
@@ -241,43 +400,7 @@ public class DetailFragment extends Fragment {
 
         @Override
         protected void onPostExecute(List<CategoryContent.CategoryItem> categoryItems) {
-            ArrayAdapter<CategoryContent.CategoryItem> categoriesAdapter = new ArrayAdapter<CategoryContent.CategoryItem>(
-                    getActivity(), android.R.layout.simple_spinner_dropdown_item,
-                    categoryItems);
-
-            if (categoryId == null || "0".equals(categoryId)) {
-                CategoryContent.CategoryItem all = new CategoryContent.CategoryItem("-1", "Wszystkie");
-                categoryItems.add(0, all);
-                categorySpinners.get(0).setAdapter(categoriesAdapter);
-/*                ((ArrayAdapter<CategoryContent.CategoryItem>) categorySpinners.get(categorySpinners.size() - 1)
-                        .getAdapter()).notifyDataSetChanged();*/
-            }else if (!categoryItems.isEmpty()){
-                Spinner spinner = new Spinner(getActivity());
-                spinner.setAdapter(categoriesAdapter);
-                mCatGroup.addView(spinner);
-                categorySpinners.add(spinner);
-            }
-            categorySpinners.get(categorySpinners.size()-1).setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    if (id > 0) {
-                        Spinner s = (Spinner) parent;
-                        CategoryContent.CategoryItem item = (CategoryContent.CategoryItem) s.getSelectedItem();
-                        List<CategoryContent.CategoryItem> cat = new ArrayList<>();
-                        FetchCategoryTask t = new FetchCategoryTask(item.getId(), cat);
-                        t.execute();
-                        //Toast.makeText(getActivity(), "asd", Toast.LENGTH_SHORT).show();
-                    }
-
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-                    Log.e("ERROR", "ADSASDASDASDASDASDASDASDASDASDASD");
-                    System.out.println("nothing");
-                    Toast.makeText(getActivity(), "asd", Toast.LENGTH_SHORT).show();
-                }
-            });
+            addCategorySpinner(categoryItems, categoryId);
         }
 
         /**
@@ -306,5 +429,27 @@ public class DetailFragment extends Fragment {
 
         }
 
+    }
+
+    public class SpinnerInteractionListener implements AdapterView.OnItemSelectedListener, View.OnTouchListener {
+        boolean userSelect = false;
+
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            if (userSelect)
+                chooseCategory((Spinner) parent, id);
+            userSelect = false;
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+            Toast.makeText(getActivity(), "Noting selected", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            userSelect = true;
+            return false;
+        }
     }
 }

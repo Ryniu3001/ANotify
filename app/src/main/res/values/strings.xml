@@ -16,12 +16,16 @@
 
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="search_name">Search name</string>
-    <string name="search_item_title">Item name</string>
+    <string name="search_name">Nazwa wyszukiwania</string>
+    <string name="search_item_title">Tytuł przedmiotu</string>
     <string name="minimal_price">Minimal price</string>
     <string name="maximum_price">Maximum price</string>
 
     <string name="context_menu_remove">Usuń</string>
+
+    <string name="sales_format">Format sprzedaży</string>
+    <string name="item_state">Stan przedmiotu</string>
+    <string name="category">Kategoria</string>
 
     <string-array name="planets_array">
         <item>Wszystkie</item>
