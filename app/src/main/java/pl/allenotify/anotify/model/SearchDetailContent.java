@@ -1,5 +1,8 @@
 package pl.allenotify.anotify.model;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.List;
 
 /**
@@ -27,7 +30,7 @@ public class SearchDetailContent {
     public static class SearchDetailItem{
         private String name;
         private String title;
-        private Boolean searchInDesc;
+        private Boolean searchInDesc = true;
         private Double priceMin;
         private Double priceMax;
         private Integer categoryId;
@@ -37,8 +40,32 @@ public class SearchDetailContent {
         private Integer stateId;
         private String city;
         private String postCode;
-        private Integer distance;
+        private Integer distanceId;
         private List<ChosenCategory> selectedCategories;
+
+        public String toJSON(){
+            JSONObject jsonObject = new JSONObject();
+
+            try {
+                jsonObject.put(NAME, this.name);
+                jsonObject.put(TITLE, this.title);
+                jsonObject.put(SEARCH_IN_DESC, this.searchInDesc);
+                jsonObject.put(PRICE_MIN, this.priceMin);
+                jsonObject.put(PRICE_MAX, this.priceMax);
+                jsonObject.put(CATEGORY_ID, this.categoryId);
+                jsonObject.put(CONDITION_ID, this.conditionId);
+                jsonObject.put(OFFER_TYPE_ID, this.offerTypeId);
+                jsonObject.put(LOCALIZATION_TYPE_ID, this.localizationTypeId);
+                jsonObject.put(STATE_ID, this.stateId);
+                jsonObject.put(CITY,this.city);
+                jsonObject.put(POST_CODE, this.postCode);
+                jsonObject.put(DISTANCE_ID, this.distanceId);
+                return jsonObject.toString();
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return "";
+            }
+        }
 
         public String getName() {
             return name;
@@ -136,12 +163,12 @@ public class SearchDetailContent {
             this.postCode = postCode;
         }
 
-        public Integer getDistance() {
-            return distance;
+        public Integer getDistanceId() {
+            return distanceId;
         }
 
-        public void setDistance(Integer distance) {
-            this.distance = distance;
+        public void setDistanceId(Integer distanceId) {
+            this.distanceId = distanceId;
         }
 
         public List<ChosenCategory> getSelectedCategories() {

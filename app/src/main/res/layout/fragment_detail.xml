@@ -2,135 +2,231 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingLeft="8dp"
-    android:orientation="vertical"
-    android:descendantFocusability="beforeDescendants"
-    android:focusableInTouchMode="true"
-    tools:context="pl.allenotify.anotify.DetailFragment">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/search_name"
-        android:editable="false"/>
-    <EditText
-        android:id="@+id/detail_search_name"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/search_name"
-        android:inputType="text"
-        android:maxLines="1"
-        android:maxLength="50"
-        android:singleLine="true"
-        android:paddingLeft="16dp"
-        style="@style/DetailItemMargin"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/search_item_title"
-        android:editable="false"/>
-    <EditText
-        android:id="@+id/detail_item_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/search_item_title"
-        android:inputType="text"
-        android:maxLines="1"
-        android:maxLength="50"
-        android:singleLine="true"
-        android:paddingLeft="16dp"
-        style="@style/DetailItemMargin"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/category"
-        android:editable="false"/>
-
-    <LinearLayout
-        android:id="@+id/spinnerCategoryGroupLayout"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:descendantFocusability="beforeDescendants"
+        android:focusableInTouchMode="true"
         android:orientation="vertical"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="16dp"
         android:animateLayoutChanges="true"
-        android:paddingLeft="16dp">
+        tools:context="pl.allenotify.anotify.DetailFragment">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/search_name" />
+
+        <EditText
+            android:id="@+id/detail_search_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/search_name"
+            android:inputType="text"
+            android:maxLength="50"
+            android:maxLines="1"
+            style="@style/DetailViewItems"
+            android:singleLine="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/search_item_title" />
+
+        <EditText
+            android:id="@+id/detail_item_title"
+            style="@style/DetailViewItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/search_item_title"
+            android:inputType="text"
+            android:maxLength="50"
+            android:maxLines="1"
+            android:singleLine="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/category" />
+
+        <LinearLayout
+            android:id="@+id/spinnerCategoryGroupLayout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            android:orientation="vertical">
+
+        </LinearLayout>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/minimal_price" />
+
+        <EditText
+            android:id="@+id/detail_minimal_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/minimal_price"
+            android:inputType="numberDecimal"
+            android:maxLength="12"
+            android:maxLines="1"
+            style="@style/DetailViewItems"
+            android:singleLine="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/maximum_price" />
+
+        <EditText
+            android:id="@+id/detail_maximum_price"
+            style="@style/DetailViewItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/maximum_price"
+            android:inputType="numberDecimal"
+            android:maxLength="12"
+            android:maxLines="1"
+            android:singleLine="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/item_state" />
+
+        <Spinner
+            android:id="@+id/detail_item_state_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/DetailViewItems"
+>
+
+        </Spinner>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/sales_format" />
+
+        <Spinner
+            android:id="@+id/detail_sales_format_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/DetailViewItems">
+
+        </Spinner>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/localization" />
+
+        <Spinner
+            android:id="@+id/detail_localization"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/DetailViewItems">
+
+        </Spinner>
+
+        <!--Linear Layouty zmieniające się w zależności co wybrano w localization spinnerze-->
+        <LinearLayout
+            android:id="@+id/detail_localization_province"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            android:visibility="gone"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/localization_province" />
+
+            <Spinner
+                android:id="@+id/detail_localization_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/DetailViewItems">
+            </Spinner>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/detail_localization_city"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            android:visibility="gone"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/localization_city" />
+
+            <EditText
+                android:id="@+id/detail_item_city"
+                style="@style/DetailViewItems"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/search_item_city"
+                android:inputType="text"
+                android:maxLength="50"
+                android:maxLines="1"
+                android:singleLine="true" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/detail_localization_distance"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            android:visibility="gone"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/localization_postal_code" />
+
+            <EditText
+                android:id="@+id/detail_item_postal_code"
+                style="@style/DetailViewItems"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/search_item_postal_code"
+                android:inputType="textPostalAddress"
+                android:maxLength="6"
+                android:maxLines="1"
+                android:singleLine="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/localization_distance" />
+            <Spinner
+                android:id="@+id/detail_localization_distance_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/DetailViewItems">
+            </Spinner>
+        </LinearLayout>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/submit_button"/>
 
     </LinearLayout>
-
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/minimal_price"
-        android:editable="false"/>
-    <EditText
-        android:id="@+id/detail_minimal_price"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/minimal_price"
-        android:inputType="numberDecimal"
-        android:maxLines="1"
-        android:maxLength="12"
-        android:singleLine="true"
-        android:paddingLeft="16dp"
-        style="@style/DetailItemMargin"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/maximum_price"
-        android:editable="false"/>
-    <EditText
-        android:id="@+id/detail_maximum_price"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/maximum_price"
-        android:inputType="numberDecimal"
-        android:maxLines="1"
-        android:maxLength="12"
-        android:singleLine="true"
-        android:paddingLeft="16dp"
-        style="@style/DetailItemMargin"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/item_state"
-        android:editable="false"/>
-
-    <Spinner
-        android:id="@+id/detail_item_state_spinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="16dp"
-        >
-
-    </Spinner>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/sales_format"
-        android:editable="false"
-        android:layout_marginTop="16dp"/>
-    <Spinner
-        android:id="@+id/detail_sales_format_spinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="16dp"
-        >
-
-    </Spinner>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Województwo" />
-
-</LinearLayout>
 </ScrollView>

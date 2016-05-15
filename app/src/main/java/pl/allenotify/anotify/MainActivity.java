@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.View;
@@ -36,8 +37,14 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
         Intent intent = new Intent(getApplicationContext(), DetailActivity.class);
         intent.putExtra(INTENT_ITEM_ID, item.getId());
         intent.putExtra(INTENT_ITEM_NAME, item.getName());
-        startActivity(intent);
+        startActivityForResult(intent, 1); //UPDATE
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_main);
+        fragment.onActivityResult(requestCode,resultCode,data);
     }
 
     @Override

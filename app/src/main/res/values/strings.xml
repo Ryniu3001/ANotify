@@ -12,12 +12,14 @@
     <string name="prefs_user_name_key">user_name</string>
     <string name="action_refresh">Refresh</string>
 
-    <string name="title_activity_detail">Detail</string>
+    <string name="title_activity_detail">Szczegóły</string>
 
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="search_name">Nazwa wyszukiwania</string>
     <string name="search_item_title">Tytuł przedmiotu</string>
+    <string name="search_item_city">Miejscowość</string>
+    <string name="search_item_postal_code">Kod pocztowy</string>
     <string name="minimal_price">Minimal price</string>
     <string name="maximum_price">Maximum price</string>
 
@@ -26,6 +28,13 @@
     <string name="sales_format">Format sprzedaży</string>
     <string name="item_state">Stan przedmiotu</string>
     <string name="category">Kategoria</string>
+    <string name="localization">Lokalizacja</string>
+    <string name="localization_province">Województwo</string>
+    <string name="localization_city">Miejscowość</string>
+    <string name="localization_postal_code">Kod pocztowy</string>
+    <string name="localization_distance">Dystans</string>
+    <string name="submit_button_update">Zapisz zmiany</string>
+    <string name="submit_button_add">Dodaj do śledzonych</string>
 
     <string-array name="planets_array">
         <item>Wszystkie</item>
@@ -39,6 +48,55 @@
         <item>Używane</item>
     </string-array>
 
+    <string-array name="item_localizations_array">
+        <item>Województwo</item>
+        <item>Miejscowość</item>
+        <item>Dystans</item>
+    </string-array>
+
+    <string-array name="item_localization_provinces_array">
+        <item>Wszystkie</item>
+        <item>Dolnośląskie</item>
+        <item>Kujawsko-Pomorskie</item>
+        <item>Lubelskie</item>
+        <item>Lubuskie</item>
+        <item>Łódzkie</item>
+        <item>Małopolskie</item>
+        <item>Mazowieckie</item>
+        <item>Opolskie</item>
+        <item>Podkarpackie</item>
+        <item>Podlaskie</item>
+        <item>Pomorskie</item>
+        <item>Śląskie</item>
+        <item>Świętokrzyskie</item>
+        <item>Warmińsko-Mazurskie</item>
+        <item>Wielkopolskie</item>
+        <item>Zachodniopomorskie</item>
+    </string-array>
+
+    <string-array name="localization_distances">
+        <item>10 km</item>
+        <item>25 km</item>
+        <item>50 km</item>
+        <item>75 km</item>
+        <item>100 km</item>
+        <item>150 km</item>
+        <item>200 km</item>
+        <item>350 km</item>
+        <item>500 km</item>
+    </string-array>
+
+    <integer-array name="localization_distances_values">
+        <item>10</item>
+        <item>25</item>
+        <item>50</item>
+        <item>75</item>
+        <item>100</item>
+        <item>150</item>
+        <item>200</item>
+        <item>350</item>
+        <item>500</item>
+    </integer-array>
 
 
 

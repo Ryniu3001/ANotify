@@ -9,8 +9,10 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import pl.allenotify.anotify.MainActivity;
 import pl.allenotify.anotify.R;
@@ -18,45 +20,68 @@ import pl.allenotify.anotify.R;
 /**
  * Created by marcin on 12.05.16.
  */
-public class GetTask extends AsyncTask<String, Void, String> {
+public class GetTask extends AsyncTask<Void, Void, String> {
     private String LOG_TAG = GetTask.class.getSimpleName();
+    public static String PUT = "PUT";
+    public static String POST = "POST";
+    public static String GET = "GET";
+
     private GetTaskCaller listener = null;
 
+    private String urlString = null;
+    private String method;
+    private String jsonBody;
+    private int responseCode;
+
+    public GetTask(String url, String method, String jsonBody){
+        this.urlString = url;
+        this.method = method;
+        this.jsonBody = jsonBody;
+    }
+
+    public GetTask(String url){
+        this.urlString = url;
+        this.method = GET;
+    }
+
     @Override
-    protected String doInBackground(String... params) {
+    protected String doInBackground(Void... params) {
         String responseJsonStr = null;
         OkHttpClient client = new OkHttpClient();
         try {
 
-            if (params == null){
-                return null;
-            }
-
             Request.Builder builder = new Request.Builder();
-            //URL url = new URL("http://webapi.allenotify.pl/SearchItem");
-            URL url = new URL(params[0]);
+            URL url = new URL(urlString);
             SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.appContext);
             String token = sharedPrefs.getString(MainActivity.appContext.getString(R.string.prefs_access_token_key),"");
 
+            MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-            builder.url(url).addHeader("Accept", "application/json")
-                    .addHeader("Authorization", "bearer " + token );
-            Request request = builder.build();
-
-            Log.v(LOG_TAG, builder.toString());
-            Response response = client.newCall(request).execute();
-            Log.v(LOG_TAG, "RESPONSE CODE: " + response.code());
-
-            if (response.code() != HttpURLConnection.HTTP_OK){
-                return null;
+            if (method.equals(GET)){
+                builder.url(url).addHeader("Accept", "application/json")
+                        .addHeader("Authorization", "bearer " + token );
+            }else if (method.equals(PUT)){
+                RequestBody body = RequestBody.create(JSON, jsonBody);
+                builder.url(url).put(body).addHeader("Content-Encoding", "application/json")
+                        .addHeader("Authorization", "bearer " + token );
+                Log.v(LOG_TAG, "REQUEST " + jsonBody);
             }
 
-            String line;
-            StringBuffer buffer = new StringBuffer();
+            Request request = builder.build();
 
+            Log.v(LOG_TAG, request.method() + " " + url);
+            Response response = client.newCall(request).execute();
+            Log.v(LOG_TAG, "RESPONSE CODE: " + response.code());
+            Log.v(LOG_TAG, "RESPONSE Message: " + response.message());
             responseJsonStr = response.body().string();
 
             Log.v(LOG_TAG, "RESPONSE BODY: " + responseJsonStr);
+
+            this.responseCode = response.code();
+            if (this.responseCode != HttpURLConnection.HTTP_OK){
+                return null;
+            }
+
 
         } catch (IOException e) {
             Log.e(LOG_TAG, "ERROR! No connection?", e);
@@ -70,7 +95,7 @@ public class GetTask extends AsyncTask<String, Void, String> {
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
         if (this.listener != null)
-            listener.asyncTaskDone(s);
+            listener.asyncTaskDone(this.responseCode, s);
     }
 
     public void registerListener(GetTaskCaller listener){
@@ -83,6 +108,6 @@ public class GetTask extends AsyncTask<String, Void, String> {
      * callback interface
      */
     public interface GetTaskCaller{
-        void asyncTaskDone(String response);
+        void asyncTaskDone(int code, String response);
     }
 }

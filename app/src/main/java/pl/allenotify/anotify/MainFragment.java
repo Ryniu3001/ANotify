@@ -1,6 +1,8 @@
 package pl.allenotify.anotify;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -12,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import pl.allenotify.anotify.model.UserSearchContent;
 import pl.allenotify.anotify.model.UserSearchContent.UserSearchItem;
@@ -120,6 +123,30 @@ public class MainFragment extends Fragment {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1) { //Użytkownik zaktualizował dane. Jeśli zmienił nazwę to aktualizujemy ją na liście
+            if (resultCode == Activity.RESULT_OK) {
+                String id = data.getStringExtra(MainActivity.INTENT_ITEM_ID);
+                String name = data.getStringExtra(MainActivity.INTENT_ITEM_NAME);
+                for (UserSearchItem item : UserSearchContent.items) {
+                    if (item.getId().equals(id)) {
+                        if (!item.getName().equals(name)) {
+                            item.setName(name);
+                            mAdapter.notifyItemChanged(UserSearchContent.items.indexOf(item));
+                        }
+                        break;
+                    }
+                }
+                Toast.makeText(getActivity().getApplicationContext(), "Zaktualizowano", Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(getActivity().getApplicationContext(), "Nieoczekiwany błąd", Toast.LENGTH_SHORT).show();
+            }
+        }
+
     }
 
     /**

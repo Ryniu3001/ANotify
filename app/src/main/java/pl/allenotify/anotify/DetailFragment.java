@@ -1,6 +1,8 @@
 package pl.allenotify.anotify;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -14,9 +16,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -30,6 +33,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import pl.allenotify.anotify.model.CategoryContent;
@@ -51,10 +55,29 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
     private static final String ARG_PARAM2 = "name";
     List<Spinner> categorySpinners = new ArrayList<>();
     private LinearLayout mCatGroup;
+    private LinearLayout mLocalizationProvince;
+    private LinearLayout mLocalizationCity;
+    private LinearLayout mLocalizationDistance;
+
+    private Spinner mSpinnerSalesFormat;
+    private Spinner mSpinnerItemState;
+    private Spinner mSpinnerLocalization;
+    private Spinner mSpinnerProvince;
+    private Spinner mSpinnerDistance;
+
+    private Button submitButton;
+
+    private EditText mSearchName;
+    private EditText mItemTitle;
+    private EditText mMinimalPrice;
+    private EditText mMaximumPrice;
+    private EditText mCity;
+    private EditText mPostalCode;
+
     SearchDetailContent.SearchDetailItem mSearchDetailItem = null;
 
-    private String searchId;
-    private String searchName;
+    private String searchId = null;
+    private String searchName = null;
 
     private OnFragmentInteractionListener mListener;
 
@@ -85,9 +108,9 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
         if (getArguments() != null) {
             searchId = getArguments().getString(ARG_PARAM1);
             searchName = getArguments().getString(ARG_PARAM2);
-            GetTask getSearchDetailTask = new GetTask();
+            GetTask getSearchDetailTask = new GetTask("http://webapi.allenotify.pl/SearchItem/" + searchId);
             getSearchDetailTask.registerListener(this);
-            getSearchDetailTask.execute("http://webapi.allenotify.pl/SearchItem/1183");
+            getSearchDetailTask.execute();
         }
     }
 
@@ -97,25 +120,53 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_detail, container, false);
 
+        submitButton = (Button) view.findViewById(R.id.submit_button);
+        if (searchId == null)
+            submitButton.setText(getString(R.string.submit_button_add));
+        else
+            submitButton.setText(getString(R.string.submit_button_update));
+        submitButton.setOnClickListener(buttonListener);
+
         mCatGroup = (LinearLayout) view.findViewById(R.id.spinnerCategoryGroupLayout);
+        mLocalizationProvince = (LinearLayout) view.findViewById(R.id.detail_localization_province);
+        mLocalizationCity = (LinearLayout) view.findViewById(R.id.detail_localization_city);
+        mLocalizationDistance = (LinearLayout) view.findViewById(R.id.detail_localization_distance);
+        mSpinnerLocalization = (Spinner)view.findViewById(R.id.detail_localization);
+        mSearchName = (EditText) view.findViewById(R.id.detail_search_name);
+        mItemTitle = (EditText) view.findViewById(R.id.detail_item_title);
+        mMinimalPrice = (EditText) view.findViewById(R.id.detail_minimal_price);
+        mMaximumPrice = (EditText) view.findViewById(R.id.detail_maximum_price);
+        mCity = (EditText) view.findViewById(R.id.detail_item_city);
+        mPostalCode = (EditText) view.findViewById(R.id.detail_item_postal_code);
 
         //Spinner z typem sprzedaży Kup Teraz / Licytacja
-        Spinner spinner = (Spinner)view.findViewById(R.id.detail_sales_format_spinner);
+        mSpinnerSalesFormat = (Spinner)view.findViewById(R.id.detail_sales_format_spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
                 R.array.planets_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-
-        //Kategorie
-        //categorySpinners.add((Spinner) view.findViewById(R.id.detail_main_category_spinner));
-        //List<CategoryContent.CategoryItem> categoryList = new ArrayList<>();
+        mSpinnerSalesFormat.setAdapter(adapter);
 
         //Stan przedmiotu
-        Spinner itemState = (Spinner) view.findViewById(R.id.detail_item_state_spinner);
+        mSpinnerItemState= (Spinner) view.findViewById(R.id.detail_item_state_spinner);
         ArrayAdapter<CharSequence> stateAdapter = ArrayAdapter.createFromResource(getActivity(),
                 R.array.item_states_array, android.R.layout.simple_spinner_item);
         stateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        itemState.setAdapter(stateAdapter);
+        mSpinnerItemState.setAdapter(stateAdapter);
+
+        //Wojewodztwa
+        mSpinnerProvince = (Spinner) view.findViewById(R.id.detail_localization_spinner);
+        ArrayAdapter<CharSequence> provinceAdapter = ArrayAdapter.createFromResource(getActivity(),
+                R.array.item_localization_provinces_array, android.R.layout.simple_spinner_item);
+        provinceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpinnerProvince.setAdapter(provinceAdapter);
+
+        //Dystans
+        mSpinnerDistance = (Spinner) view.findViewById(R.id.detail_localization_distance_spinner);
+        ArrayAdapter<CharSequence> distanceAdapter = ArrayAdapter.createFromResource(getActivity(),
+                R.array.localization_distances, android.R.layout.simple_spinner_item);
+        distanceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpinnerDistance.setAdapter(distanceAdapter);
+
 
         //Pobranie głównych kategorii
         //FetchCategoryTask task= new FetchCategoryTask("0", categoryList);
@@ -131,42 +182,71 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
         }
     }
 
+    //TODO: Uporzadkowac gdzie maja sie przypisywac adaptery a gdzie wypelniac domyslne wartosci
     private void fillViewsWithData(){
-        TextView searchNameView = (TextView)getActivity().findViewById(R.id.detail_search_name);
-        searchNameView.setText(mSearchDetailItem.getName());
-
-        TextView titleView = (TextView)getActivity().findViewById(R.id.detail_item_title) ;
-        titleView.setText(mSearchDetailItem.getTitle());
-
-        TextView minimalPriceView = (TextView)getActivity().findViewById(R.id.detail_minimal_price);
-        minimalPriceView.setText(mSearchDetailItem.getPriceMin().toString());
-
-        TextView maximumPriceView = (TextView)getActivity().findViewById(R.id.detail_maximum_price);
-        maximumPriceView.setText(mSearchDetailItem.getPriceMax().toString());
-
+        mSearchName.setText(mSearchDetailItem.getName());
+        mItemTitle.setText(mSearchDetailItem.getTitle());
+        mMinimalPrice.setText(mSearchDetailItem.getPriceMin().toString());
+        mMaximumPrice.setText(mSearchDetailItem.getPriceMax().toString());
         //Stan przedmiotu
-        Spinner itemState = (Spinner) getActivity().findViewById(R.id.detail_item_state_spinner);
-        ArrayAdapter<CharSequence> stateAdapter = ArrayAdapter.createFromResource(getActivity(),
-                R.array.item_states_array, android.R.layout.simple_spinner_item);
-        stateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        itemState.setAdapter(stateAdapter);
-        itemState.setSelection(mSearchDetailItem.getConditionId());
-
+        mSpinnerItemState.setSelection(mSearchDetailItem.getConditionId());
         //Spinner z typem sprzedaży Kup Teraz / Licytacja
-        Spinner spinner = (Spinner)getActivity().findViewById(R.id.detail_sales_format_spinner);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
-                R.array.planets_array, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-        itemState.setSelection(mSearchDetailItem.getOfferTypeId());
-
+        mSpinnerSalesFormat.setSelection(mSearchDetailItem.getOfferTypeId());
         //Kategorie
         for (SearchDetailContent.ChosenCategory chosenCategory : mSearchDetailItem.getSelectedCategories()){
             addCategorySpinner(chosenCategory.getSiblings(), chosenCategory.getCategoryId().toString());
             categorySpinners.get(categorySpinners.size()-1).setSelection(chosenCategory.getCategoryPositionOnSiblings());
-            //break;
         }
 
+        fillUpLocalizationViews();
+    }
+
+
+    private void fillUpLocalizationViews(){
+        //Lokalizacja
+        ArrayAdapter<CharSequence> localizationAdapter = ArrayAdapter.createFromResource(getActivity(),
+                R.array.item_localizations_array, android.R.layout.simple_spinner_item);
+        localizationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpinnerLocalization.setAdapter(localizationAdapter);
+
+        mSpinnerLocalization.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (position) {
+                    case 0: {
+                        mLocalizationProvince.setVisibility(View.VISIBLE);
+                        mLocalizationCity.setVisibility(View.GONE);
+                        mLocalizationDistance.setVisibility(View.GONE);
+                        break;
+                    }
+                    case 1: {
+                        mLocalizationProvince.setVisibility(View.GONE);
+                        mLocalizationCity.setVisibility(View.VISIBLE);
+                        mLocalizationDistance.setVisibility(View.GONE);
+                        break;
+                    }
+                    case 2: {
+                        mLocalizationProvince.setVisibility(View.GONE);
+                        mLocalizationCity.setVisibility(View.GONE);
+                        mLocalizationDistance.setVisibility(View.VISIBLE);
+                        break;
+                    }
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                Toast.makeText(getActivity(), "Noting selected", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        mSpinnerLocalization.setSelection(mSearchDetailItem.getLocalizationTypeId());
+        mCity.setText(mSearchDetailItem.getCity());
+        mSpinnerProvince.setSelection(mSearchDetailItem.getStateId());
+        mPostalCode.setText(mSearchDetailItem.getPostCode());
+        int[] distanceIds = getResources().getIntArray(R.array.localization_distances_values);
+        int index = Arrays.asList(distanceIds).indexOf(mSearchDetailItem.getDistanceId());
+        mSpinnerDistance.setSelection(index);
 
 
 
@@ -212,12 +292,13 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
     }
 
     @Override
-    public void asyncTaskDone(String response) {
+    public void asyncTaskDone(int code, String response) {
         try {
             parseSearchItemDetailResponse(response);
             fillViewsWithData();
-        } catch (JSONException e) {
+        } catch (JSONException | NumberFormatException e) {
             e.printStackTrace();
+            getActivity().finish();
         }
     }
 
@@ -238,41 +319,48 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
              * Przy tworzeniu widoku, pobieramy kategorie podając id=0.
              * Dla tego przypadku nie dodajemy nowego Spinner ponieważ jest on na stałe widoku.
              */
-            if (categoryId == null || "0".equals(categoryId)) {
+           /* if (categoryId == null || "0".equals(categoryId)) {
                 categorySpinners.get(0).setAdapter(categoriesAdapter);
-            } else if (!categoryItems.isEmpty()) {
+            } else*/ if (!categoryItems.isEmpty()) {
                 Spinner spinner = new Spinner(getActivity());
                 spinner.setAdapter(categoriesAdapter);
                 mCatGroup.addView(spinner);
                 categorySpinners.add(spinner);
             }
 
-            SpinnerInteractionListener listener = new SpinnerInteractionListener();
+            CategorySpinnerInteractionListener listener = new CategorySpinnerInteractionListener();
             categorySpinners.get(categorySpinners.size() - 1).setOnTouchListener(listener);
             categorySpinners.get(categorySpinners.size() - 1).setOnItemSelectedListener(listener);
         }
     }
 
-    private void parseSearchItemDetailResponse(String response) throws JSONException {
+    private void parseSearchItemDetailResponse(String response) throws JSONException, NumberFormatException {
         JSONObject responseObject = new JSONObject(response);
         mSearchDetailItem = new SearchDetailContent.SearchDetailItem();
         mSearchDetailItem.setName(responseObject.getString(SearchDetailContent.NAME));
         mSearchDetailItem.setTitle(responseObject.getString(SearchDetailContent.TITLE));
         mSearchDetailItem.setSearchInDesc(responseObject.getBoolean(SearchDetailContent.SEARCH_IN_DESC));
-        mSearchDetailItem.setPriceMin(responseObject.getDouble(SearchDetailContent.PRICE_MIN));
-        mSearchDetailItem.setPriceMax(responseObject.getDouble(SearchDetailContent.PRICE_MAX));
+        String priceMin = responseObject.getString(SearchDetailContent.PRICE_MIN);
+        mSearchDetailItem.setPriceMin(priceMin == null || priceMin.equals("null") ? 0.0 : Double.parseDouble(priceMin));
+        String priceMax = responseObject.getString(SearchDetailContent.PRICE_MAX);
+        mSearchDetailItem.setPriceMax(priceMax == null || priceMax.equals("null") ? 0.0 : Double.parseDouble(priceMax));
         mSearchDetailItem.setCategoryId(responseObject.getInt(SearchDetailContent.CATEGORY_ID));
         mSearchDetailItem.setConditionId(responseObject.getInt(SearchDetailContent.CONDITION_ID));
         mSearchDetailItem.setOfferTypeId(responseObject.getInt(SearchDetailContent.OFFER_TYPE_ID));
         mSearchDetailItem.setLocalizationTypeId(responseObject.getInt(SearchDetailContent.LOCALIZATION_TYPE_ID));
         mSearchDetailItem.setStateId(responseObject.getInt(SearchDetailContent.STATE_ID));
         mSearchDetailItem.setCity(responseObject.getString(SearchDetailContent.CITY));
-        mSearchDetailItem.setPostCode(responseObject.getString(SearchDetailContent.POST_CODE));
-        mSearchDetailItem.setDistance(responseObject.getInt(SearchDetailContent.DISTANCE_ID));
+        String postalCode = responseObject.getString(SearchDetailContent.POST_CODE);
+        if (postalCode.equals("null")){
+            postalCode = "";
+        }
+        mSearchDetailItem.setPostCode(postalCode);
+        mSearchDetailItem.setDistanceId(responseObject.getInt(SearchDetailContent.DISTANCE_ID));
 
         List<SearchDetailContent.ChosenCategory> choosenCategoryList = new ArrayList<>();
         JSONArray categories = new JSONArray(responseObject.getString(SearchDetailContent.CATEGORIES));
 
+        //Parsowanie kategorii
         if (categories!=null) {
             for (int i = 0; i < categories.length(); i++) {
                 JSONObject ob = categories.getJSONObject(i);
@@ -300,6 +388,7 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
 
     }
 
+    private View.OnClickListener buttonListener = new SubmitButtonInteractionListener();
 
     /**
      * This interface must be implemented by activities that contain this
@@ -431,7 +520,7 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
 
     }
 
-    public class SpinnerInteractionListener implements AdapterView.OnItemSelectedListener, View.OnTouchListener {
+    public class CategorySpinnerInteractionListener implements AdapterView.OnItemSelectedListener, View.OnTouchListener {
         boolean userSelect = false;
 
         @Override
@@ -451,5 +540,53 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
             userSelect = true;
             return false;
         }
+    }
+
+    public class SubmitButtonInteractionListener implements View.OnClickListener, GetTask.GetTaskCaller{
+
+        @Override
+        public void onClick(View v) {
+            if (mSearchDetailItem == null)
+                mSearchDetailItem = new SearchDetailContent.SearchDetailItem();
+            mSearchDetailItem.setName(mSearchName.getText().toString());
+            mSearchDetailItem.setTitle(mItemTitle.getText().toString());
+            if (mMinimalPrice.getText().toString().isEmpty())
+                mSearchDetailItem.setPriceMin(null);
+            else
+                mSearchDetailItem.setPriceMin(Double.parseDouble(mMinimalPrice.getText().toString()));
+            if (mMaximumPrice.getText().toString().isEmpty())
+                mSearchDetailItem.setPriceMax(null);
+            else
+                mSearchDetailItem.setPriceMax(Double.parseDouble(mMaximumPrice.getText().toString()));
+            String categoryId = ((CategoryContent.CategoryItem)categorySpinners.get(categorySpinners.size()-1).getSelectedItem()).getId();
+            mSearchDetailItem.setCategoryId(Integer.parseInt(categoryId));
+            mSearchDetailItem.setConditionId(mSpinnerItemState.getSelectedItemPosition());
+            mSearchDetailItem.setOfferTypeId(mSpinnerSalesFormat.getSelectedItemPosition());
+            mSearchDetailItem.setLocalizationTypeId(mSpinnerLocalization.getSelectedItemPosition());
+            mSearchDetailItem.setStateId(mSpinnerProvince.getSelectedItemPosition());
+            mSearchDetailItem.setCity(mCity.getText().toString());
+            mSearchDetailItem.setPostCode(mPostalCode.getText().toString());
+            mSearchDetailItem.setDistanceId(getResources().getIntArray(R.array.localization_distances_values)[mSpinnerProvince.getSelectedItemPosition()]);
+
+
+            GetTask putData = new GetTask("http://webapi.allenotify.pl/SearchItem/" + searchId, GetTask.PUT, mSearchDetailItem.toJSON());
+            putData.registerListener(this);
+            putData.execute();
+
+        }
+
+        @Override
+        public void asyncTaskDone(int code, String response) {
+            Intent intent = new Intent(getActivity().getApplicationContext(), MainActivity.class);
+            intent.putExtra(MainActivity.INTENT_ITEM_ID, searchId);
+            intent.putExtra(MainActivity.INTENT_ITEM_NAME, mSearchDetailItem.getName());
+            if (String.valueOf(code).startsWith("2"))
+                getActivity().setResult(Activity.RESULT_OK, intent);
+            else
+                getActivity().setResult(Activity.RESULT_CANCELED, intent);
+            getActivity().finish();
+
+        }
+
     }
 }
