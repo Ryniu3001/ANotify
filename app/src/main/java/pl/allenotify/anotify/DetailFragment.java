@@ -11,6 +11,9 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +22,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -74,7 +79,11 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
     private EditText mCity;
     private EditText mPostalCode;
 
+    private ProgressBar progressBar;
+    private LinearLayout mLinearMainView;
     SearchDetailContent.SearchDetailItem mSearchDetailItem = null;
+
+
 
     private String searchId = null;
     private String searchName = null;
@@ -95,23 +104,19 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
      */
     public static DetailFragment newInstance(String id, String name) {
         DetailFragment fragment = new DetailFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, id);
-        args.putString(ARG_PARAM2, name);
-        fragment.setArguments(args);
+        if (id != null && name != null) {
+            Bundle args = new Bundle();
+            args.putString(ARG_PARAM1, id);
+            args.putString(ARG_PARAM2, name);
+            fragment.setArguments(args);
+        }
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            searchId = getArguments().getString(ARG_PARAM1);
-            searchName = getArguments().getString(ARG_PARAM2);
-            GetTask getSearchDetailTask = new GetTask("http://webapi.allenotify.pl/SearchItem/" + searchId);
-            getSearchDetailTask.registerListener(this);
-            getSearchDetailTask.execute();
-        }
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -119,6 +124,28 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_detail, container, false);
+        mCatGroup = (LinearLayout) view.findViewById(R.id.spinnerCategoryGroupLayout);
+        progressBar = (ProgressBar) view.findViewById(R.id.progressBar1);
+        mLinearMainView = (LinearLayout) view.findViewById(R.id.linearMainView);
+        /**
+         * Jeśli w zmiennej mamy ID przedmiotu to jest to ekran edycji.
+         *
+         */
+        if (getArguments() != null) {
+            searchId = getArguments().getString(ARG_PARAM1);
+            searchName = getArguments().getString(ARG_PARAM2);
+            GetTask getSearchDetailTask = new GetTask("http://webapi.allenotify.pl/SearchItem/" + searchId);
+            getSearchDetailTask.registerListener(this);
+            getSearchDetailTask.execute();
+            mLinearMainView.setVisibility(View.GONE);
+            progressBar.setVisibility(View.VISIBLE);
+        }else{
+            //Pobranie głównych kategorii
+            List<CategoryContent.CategoryItem> categoryList = new ArrayList<>();
+            FetchCategoryTask task= new FetchCategoryTask("0", categoryList);
+            task.execute();
+        }
+
 
         submitButton = (Button) view.findViewById(R.id.submit_button);
         if (searchId == null)
@@ -127,7 +154,7 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
             submitButton.setText(getString(R.string.submit_button_update));
         submitButton.setOnClickListener(buttonListener);
 
-        mCatGroup = (LinearLayout) view.findViewById(R.id.spinnerCategoryGroupLayout);
+
         mLocalizationProvince = (LinearLayout) view.findViewById(R.id.detail_localization_province);
         mLocalizationCity = (LinearLayout) view.findViewById(R.id.detail_localization_city);
         mLocalizationDistance = (LinearLayout) view.findViewById(R.id.detail_localization_distance);
@@ -138,6 +165,7 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
         mMaximumPrice = (EditText) view.findViewById(R.id.detail_maximum_price);
         mCity = (EditText) view.findViewById(R.id.detail_item_city);
         mPostalCode = (EditText) view.findViewById(R.id.detail_item_postal_code);
+
 
         //Spinner z typem sprzedaży Kup Teraz / Licytacja
         mSpinnerSalesFormat = (Spinner)view.findViewById(R.id.detail_sales_format_spinner);
@@ -167,11 +195,7 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
         distanceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpinnerDistance.setAdapter(distanceAdapter);
 
-
-        //Pobranie głównych kategorii
-        //FetchCategoryTask task= new FetchCategoryTask("0", categoryList);
-        //task.execute();
-
+        setUpLocalizationSpinner();
         return view;
     }
 
@@ -182,12 +206,35 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
         }
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.detail_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_submit){
+            submitButton.performClick();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     //TODO: Uporzadkowac gdzie maja sie przypisywac adaptery a gdzie wypelniac domyslne wartosci
+
+    /**
+     * Ustawia wartosci w polach jesli edytujemy jakieś wyszukiwanie
+     */
     private void fillViewsWithData(){
+
+
         mSearchName.setText(mSearchDetailItem.getName());
         mItemTitle.setText(mSearchDetailItem.getTitle());
-        mMinimalPrice.setText(mSearchDetailItem.getPriceMin().toString());
-        mMaximumPrice.setText(mSearchDetailItem.getPriceMax().toString());
+        if (mSearchDetailItem.getPriceMin() != null)
+            mMinimalPrice.setText(mSearchDetailItem.getPriceMin().toString());
+        if (mSearchDetailItem.getPriceMax() != null)
+            mMaximumPrice.setText(mSearchDetailItem.getPriceMax().toString());
         //Stan przedmiotu
         mSpinnerItemState.setSelection(mSearchDetailItem.getConditionId());
         //Spinner z typem sprzedaży Kup Teraz / Licytacja
@@ -198,11 +245,22 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
             categorySpinners.get(categorySpinners.size()-1).setSelection(chosenCategory.getCategoryPositionOnSiblings());
         }
 
-        fillUpLocalizationViews();
+        mSpinnerLocalization.setSelection(mSearchDetailItem.getLocalizationTypeId());
+        mCity.setText(mSearchDetailItem.getCity());
+        mSpinnerProvince.setSelection(mSearchDetailItem.getStateId());
+        mPostalCode.setText(mSearchDetailItem.getPostCode());
+        int[] distanceIds = getResources().getIntArray(R.array.localization_distances_values);
+        int index = Arrays.asList(distanceIds).indexOf(mSearchDetailItem.getDistanceId());
+        mSpinnerDistance.setSelection(index);
+
+
     }
 
 
-    private void fillUpLocalizationViews(){
+    /**
+     * Ustawia wartości w polach dotyczących lokalizacji
+     */
+    private void setUpLocalizationSpinner(){
         //Lokalizacja
         ArrayAdapter<CharSequence> localizationAdapter = ArrayAdapter.createFromResource(getActivity(),
                 R.array.item_localizations_array, android.R.layout.simple_spinner_item);
@@ -240,13 +298,7 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
             }
         });
 
-        mSpinnerLocalization.setSelection(mSearchDetailItem.getLocalizationTypeId());
-        mCity.setText(mSearchDetailItem.getCity());
-        mSpinnerProvince.setSelection(mSearchDetailItem.getStateId());
-        mPostalCode.setText(mSearchDetailItem.getPostCode());
-        int[] distanceIds = getResources().getIntArray(R.array.localization_distances_values);
-        int index = Arrays.asList(distanceIds).indexOf(mSearchDetailItem.getDistanceId());
-        mSpinnerDistance.setSelection(index);
+
 
 
 
@@ -296,6 +348,8 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
         try {
             parseSearchItemDetailResponse(response);
             fillViewsWithData();
+            progressBar.setVisibility(View.GONE);
+            mLinearMainView.setVisibility(View.VISIBLE);
         } catch (JSONException | NumberFormatException e) {
             e.printStackTrace();
             getActivity().finish();
@@ -341,9 +395,9 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
         mSearchDetailItem.setTitle(responseObject.getString(SearchDetailContent.TITLE));
         mSearchDetailItem.setSearchInDesc(responseObject.getBoolean(SearchDetailContent.SEARCH_IN_DESC));
         String priceMin = responseObject.getString(SearchDetailContent.PRICE_MIN);
-        mSearchDetailItem.setPriceMin(priceMin == null || priceMin.equals("null") ? 0.0 : Double.parseDouble(priceMin));
+        mSearchDetailItem.setPriceMin(priceMin == null || priceMin.equals("null") ? null: Double.parseDouble(priceMin));
         String priceMax = responseObject.getString(SearchDetailContent.PRICE_MAX);
-        mSearchDetailItem.setPriceMax(priceMax == null || priceMax.equals("null") ? 0.0 : Double.parseDouble(priceMax));
+        mSearchDetailItem.setPriceMax(priceMax == null || priceMax.equals("null") ? null : Double.parseDouble(priceMax));
         mSearchDetailItem.setCategoryId(responseObject.getInt(SearchDetailContent.CATEGORY_ID));
         mSearchDetailItem.setConditionId(responseObject.getInt(SearchDetailContent.CONDITION_ID));
         mSearchDetailItem.setOfferTypeId(responseObject.getInt(SearchDetailContent.OFFER_TYPE_ID));
@@ -544,12 +598,24 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
 
     public class SubmitButtonInteractionListener implements View.OnClickListener, GetTask.GetTaskCaller{
 
+        boolean error;
+
         @Override
         public void onClick(View v) {
+            error = false;
             if (mSearchDetailItem == null)
                 mSearchDetailItem = new SearchDetailContent.SearchDetailItem();
-            mSearchDetailItem.setName(mSearchName.getText().toString());
-            mSearchDetailItem.setTitle(mItemTitle.getText().toString());
+
+            if (mSearchName.getText().toString().isEmpty())
+                emptyFieldError(mSearchName);
+            else
+                mSearchDetailItem.setName(mSearchName.getText().toString());
+
+            if (mItemTitle.getText().toString().isEmpty())
+                emptyFieldError(mItemTitle);
+            else
+                mSearchDetailItem.setTitle(mItemTitle.getText().toString());
+
             if (mMinimalPrice.getText().toString().isEmpty())
                 mSearchDetailItem.setPriceMin(null);
             else
@@ -558,7 +624,7 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
                 mSearchDetailItem.setPriceMax(null);
             else
                 mSearchDetailItem.setPriceMax(Double.parseDouble(mMaximumPrice.getText().toString()));
-            String categoryId = ((CategoryContent.CategoryItem)categorySpinners.get(categorySpinners.size()-1).getSelectedItem()).getId();
+            String categoryId = ((CategoryContent.CategoryItem) categorySpinners.get(categorySpinners.size() - 1).getSelectedItem()).getId();
             mSearchDetailItem.setCategoryId(Integer.parseInt(categoryId));
             mSearchDetailItem.setConditionId(mSpinnerItemState.getSelectedItemPosition());
             mSearchDetailItem.setOfferTypeId(mSpinnerSalesFormat.getSelectedItemPosition());
@@ -566,24 +632,39 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
             mSearchDetailItem.setStateId(mSpinnerProvince.getSelectedItemPosition());
             mSearchDetailItem.setCity(mCity.getText().toString());
             mSearchDetailItem.setPostCode(mPostalCode.getText().toString());
-            mSearchDetailItem.setDistanceId(getResources().getIntArray(R.array.localization_distances_values)[mSpinnerProvince.getSelectedItemPosition()]);
+            if (mSpinnerDistance.getSelectedItemPosition() != AdapterView.INVALID_POSITION)
+                mSearchDetailItem.setDistanceId(getResources().getIntArray(R.array.localization_distances_values)[mSpinnerDistance.getSelectedItemPosition()]);
 
+            if (!error) {
+                if (searchId != null) { //PUT
+                    GetTask putData = new GetTask("http://webapi.allenotify.pl/SearchItem/" + searchId, GetTask.PUT, mSearchDetailItem.toJSON());
+                    putData.registerListener(this);
+                    putData.execute();
+                } else {  //POST
+                    GetTask putData = new GetTask("http://webapi.allenotify.pl/SearchItem/", GetTask.POST, mSearchDetailItem.toJSON());
+                    putData.registerListener(this);
+                    putData.execute();
+                }
+            }
+        }
 
-            GetTask putData = new GetTask("http://webapi.allenotify.pl/SearchItem/" + searchId, GetTask.PUT, mSearchDetailItem.toJSON());
-            putData.registerListener(this);
-            putData.execute();
-
+        private void emptyFieldError(TextView v){
+            v.setError(getString(R.string.error_empty_field));
+            error = true;
         }
 
         @Override
         public void asyncTaskDone(int code, String response) {
+            //Konczymy obecne Activity
             Intent intent = new Intent(getActivity().getApplicationContext(), MainActivity.class);
-            intent.putExtra(MainActivity.INTENT_ITEM_ID, searchId);
-            intent.putExtra(MainActivity.INTENT_ITEM_NAME, mSearchDetailItem.getName());
+            if (searchId != null) {
+                intent.putExtra(MainActivity.INTENT_ITEM_ID, searchId);
+                intent.putExtra(MainActivity.INTENT_ITEM_NAME, mSearchDetailItem.getName());
+            }
             if (String.valueOf(code).startsWith("2"))
                 getActivity().setResult(Activity.RESULT_OK, intent);
             else
-                getActivity().setResult(Activity.RESULT_CANCELED, intent);
+                getActivity().setResult(MainActivity.STATUS_ERROR, intent);
             getActivity().finish();
 
         }

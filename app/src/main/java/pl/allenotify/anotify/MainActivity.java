@@ -18,6 +18,10 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
 
     public static final String INTENT_ITEM_ID = "pl.allenotify.item.id";
     public static final String INTENT_ITEM_NAME = "pl.allenotify.item.name";
+    public static final int STATUS_ERROR = -2;
+
+    public static final int ADD_NEW_ITEM_REQUEST = 2;
+    public static final int EDIT_ITEM_REQUEST = 1;
     public static Context appContext;
 
     @Override
@@ -37,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
         Intent intent = new Intent(getApplicationContext(), DetailActivity.class);
         intent.putExtra(INTENT_ITEM_ID, item.getId());
         intent.putExtra(INTENT_ITEM_NAME, item.getName());
-        startActivityForResult(intent, 1); //UPDATE
+        startActivityForResult(intent, EDIT_ITEM_REQUEST); //UPDATE
     }
 
     @Override

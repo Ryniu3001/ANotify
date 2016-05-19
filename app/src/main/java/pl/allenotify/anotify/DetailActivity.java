@@ -15,8 +15,12 @@ public class DetailActivity extends AppCompatActivity implements DetailFragment.
         setContentView(R.layout.activity_details);
 
         Bundle extras = getIntent().getExtras();
-        String searchId = extras.getString(MainActivity.INTENT_ITEM_ID);
-        String searchName = extras.getString(MainActivity.INTENT_ITEM_NAME);
+        String searchId = null;
+        String searchName = null;
+        if (extras != null) {
+            searchId = extras.getString(MainActivity.INTENT_ITEM_ID);
+            searchName = extras.getString(MainActivity.INTENT_ITEM_NAME);
+        }
 
         if (savedInstanceState == null) {
             // Create the detail fragment and add it to the activity using a fragment transaction.

@@ -11,6 +11,7 @@
     <string name="prefs_access_token_key">access_token</string>
     <string name="prefs_user_name_key">user_name</string>
     <string name="action_refresh">Refresh</string>
+    <string name="action_add">Dodaj</string>
 
     <string name="title_activity_detail">Szczegóły</string>
 
@@ -35,6 +36,8 @@
     <string name="localization_distance">Dystans</string>
     <string name="submit_button_update">Zapisz zmiany</string>
     <string name="submit_button_add">Dodaj do śledzonych</string>
+
+    <string name="error_empty_field">Pole nie może być puste.</string>
 
     <string-array name="planets_array">
         <item>Wszystkie</item>

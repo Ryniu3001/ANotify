@@ -117,18 +117,23 @@ public class MainFragment extends Fragment {
         int id = item.getItemId();
 
         if (id == R.id.action_refresh){
-            FetchItemList f = new FetchItemList(getActivity().getApplicationContext(), recyclerView.getAdapter());
-            f.execute();
-
+            refreshList();
             return true;
+        }else if (id == R.id.action_add){
+            Intent intent = new Intent(getActivity().getApplicationContext(), DetailActivity.class);
+            startActivityForResult(intent, MainActivity.ADD_NEW_ITEM_REQUEST);
         }
         return super.onOptionsItemSelected(item);
     }
 
+    private void refreshList(){
+        FetchItemList f = new FetchItemList(getActivity().getApplicationContext(), recyclerView.getAdapter());
+        f.execute();
+    }
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1) { //Użytkownik zaktualizował dane. Jeśli zmienił nazwę to aktualizujemy ją na liście
+        if (requestCode == MainActivity.EDIT_ITEM_REQUEST) { //Użytkownik zaktualizował dane. Jeśli zmienił nazwę to aktualizujemy ją na liście
             if (resultCode == Activity.RESULT_OK) {
                 String id = data.getStringExtra(MainActivity.INTENT_ITEM_ID);
                 String name = data.getStringExtra(MainActivity.INTENT_ITEM_NAME);
@@ -142,8 +147,13 @@ public class MainFragment extends Fragment {
                     }
                 }
                 Toast.makeText(getActivity().getApplicationContext(), "Zaktualizowano", Toast.LENGTH_SHORT).show();
-            }else{
+            }else if (resultCode == MainActivity.STATUS_ERROR){
                 Toast.makeText(getActivity().getApplicationContext(), "Nieoczekiwany błąd", Toast.LENGTH_SHORT).show();
+            }
+        }else if (requestCode == MainActivity.ADD_NEW_ITEM_REQUEST){
+            refreshList();
+            if (resultCode == MainActivity.STATUS_ERROR){
+                Toast.makeText(getActivity().getApplicationContext(), "Nieoczekiwany błąd. Brak danych.", Toast.LENGTH_SHORT).show();
             }
         }
 

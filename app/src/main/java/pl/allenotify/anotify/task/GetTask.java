@@ -65,6 +65,11 @@ public class GetTask extends AsyncTask<Void, Void, String> {
                 builder.url(url).put(body).addHeader("Content-Encoding", "application/json")
                         .addHeader("Authorization", "bearer " + token );
                 Log.v(LOG_TAG, "REQUEST " + jsonBody);
+            }else if (method.equals(POST)){
+                RequestBody body = RequestBody.create(JSON, jsonBody);
+                builder.url(url).post(body).addHeader("Content-Encoding", "application/json")
+                        .addHeader("Authorization", "bearer " + token );
+                Log.v(LOG_TAG, "REQUEST " + jsonBody);
             }
 
             Request request = builder.build();
