@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "377496687216",
+    "firebase_url": "https://project-6795527711864864075.firebaseio.com",
+    "project_id": "project-6795527711864864075",
+    "storage_bucket": "project-6795527711864864075.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:377496687216:android:559a0e6bc4f209e9",
+        "android_client_info": {
+          "package_name": "pl.allenotify.anotify"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "377496687216-h3rgufe3qf0aoph2jt924c83mmu3ojg9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBb2gA9DRcRqMwkvhQ9j8fD-v6wt9DesQE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

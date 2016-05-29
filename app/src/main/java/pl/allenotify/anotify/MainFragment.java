@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,6 +16,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import pl.allenotify.anotify.model.UserSearchContent;
 import pl.allenotify.anotify.model.UserSearchContent.UserSearchItem;
@@ -70,6 +73,7 @@ public class MainFragment extends Fragment {
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
             recyclerView = (RecyclerView) view;
+            Log.v("RECYCLER", recyclerView.toString());
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
@@ -127,6 +131,7 @@ public class MainFragment extends Fragment {
     }
 
     private void refreshList(){
+        Log.d("TOKEN", FirebaseInstanceId.getInstance().getToken());
         FetchItemList f = new FetchItemList(getActivity().getApplicationContext(), recyclerView.getAdapter());
         f.execute();
     }

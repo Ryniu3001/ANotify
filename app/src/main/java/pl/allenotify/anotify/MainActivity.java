@@ -3,6 +3,7 @@ package pl.allenotify.anotify;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -24,10 +25,28 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
     public static final int EDIT_ITEM_REQUEST = 1;
     public static Context appContext;
 
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         appContext = getApplicationContext();
+
+        Intent intent = getIntent();
+
+        if (intent != null && intent.getAction().equals("OPEN_ALLEGRO")){
+            intent.setAction("");
+            Intent i = new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("http://www.allegro.pl"));
+            i.setFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(i);
+
+        }
+
         setContentView(R.layout.activity_main);
     }
 

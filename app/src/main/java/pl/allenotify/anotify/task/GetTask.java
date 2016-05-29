@@ -86,8 +86,6 @@ public class GetTask extends AsyncTask<Void, Void, String> {
             if (this.responseCode != HttpURLConnection.HTTP_OK){
                 return null;
             }
-
-
         } catch (IOException e) {
             Log.e(LOG_TAG, "ERROR! No connection?", e);
             return null;
