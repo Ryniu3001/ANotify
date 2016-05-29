@@ -54,7 +54,7 @@ public class FetchItemList extends AsyncTask<Void, Void, List<UserSearchContent.
         try {
 
             Request.Builder builder = new Request.Builder();
-            URL url = new URL("http://webapi.allenotify.pl/SearchItem");
+            URL url = new URL("http://webapi.allenotify.pl/api/SearchItem");
            /* urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.setRequestProperty("Content-Type", "application/json");*/

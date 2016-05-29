@@ -38,11 +38,14 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
 
         Intent intent = getIntent();
 
-        if (intent != null && intent.getAction().equals("OPEN_ALLEGRO")){
+        if (intent != null && "OPEN_ALLEGRO".equals(intent.getAction())){
             intent.setAction("");
+            String offerId = "0";
+            if (intent.getExtras() != null)
+                offerId = intent.getExtras().getString("IdOffer");
             Intent i = new Intent(Intent.ACTION_VIEW,
-                    Uri.parse("http://www.allegro.pl"));
-            i.setFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    Uri.parse("http://www.allegro.pl/ShowItem2.php/itemNotFound/?item=" + offerId));
+            //i.setFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(i);
 
         }

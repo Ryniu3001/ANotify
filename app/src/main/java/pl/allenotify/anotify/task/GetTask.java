@@ -14,7 +14,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import pl.allenotify.anotify.MainActivity;
+import pl.allenotify.anotify.LoginActivity;
 import pl.allenotify.anotify.R;
 
 /**
@@ -52,9 +52,10 @@ public class GetTask extends AsyncTask<Void, Void, String> {
 
             Request.Builder builder = new Request.Builder();
             URL url = new URL(urlString);
-            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.appContext);
-            String token = sharedPrefs.getString(MainActivity.appContext.getString(R.string.prefs_access_token_key),"");
-
+            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(LoginActivity.appContext);
+            String token = sharedPrefs.getString(LoginActivity.appContext.getString(R.string.prefs_access_token_key),"");
+            if (token == null || token.isEmpty())
+                return null;
             MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
             if (method.equals(GET)){
@@ -62,12 +63,12 @@ public class GetTask extends AsyncTask<Void, Void, String> {
                         .addHeader("Authorization", "bearer " + token );
             }else if (method.equals(PUT)){
                 RequestBody body = RequestBody.create(JSON, jsonBody);
-                builder.url(url).put(body).addHeader("Content-Encoding", "application/json")
+                builder.url(url).put(body).addHeader("Content-Type", "application/json")
                         .addHeader("Authorization", "bearer " + token );
                 Log.v(LOG_TAG, "REQUEST " + jsonBody);
             }else if (method.equals(POST)){
                 RequestBody body = RequestBody.create(JSON, jsonBody);
-                builder.url(url).post(body).addHeader("Content-Encoding", "application/json")
+                builder.url(url).post(body).addHeader("Content-Type", "application/json")
                         .addHeader("Authorization", "bearer " + token );
                 Log.v(LOG_TAG, "REQUEST " + jsonBody);
             }

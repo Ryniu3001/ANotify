@@ -28,15 +28,21 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         Log.d("WIADOMOSC", remoteMessage.getFrom());
         Log.d("WIADOMOSC", remoteMessage.getNotification().getBody());
-        sendNotification(remoteMessage.getNotification().getTitle(), remoteMessage.getNotification().getBody());
+        String offerId = null;
+        if (remoteMessage.getData() != null)
+            offerId = remoteMessage.getData().get("IdOffer");
+        Log.d("IdOffer", offerId);
+        sendNotification(remoteMessage.getNotification().getTitle(), remoteMessage.getNotification().getBody(),
+                offerId);
         super.onMessageReceived(remoteMessage);
 
     }
 
-    private void sendNotification(String messageTitle,String messageBody) {
+    private void sendNotification(String messageTitle,String messageBody, String offerId) {
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.setAction("OPEN_ALLEGRO");
+        intent.putExtra("IdOffer", offerId);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,0 /* request code */, intent,PendingIntent.FLAG_UPDATE_CURRENT);
 
         long[] pattern = {500,500,500,500,500};

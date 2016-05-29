@@ -487,7 +487,7 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
                 Uri.Builder builder = new Uri.Builder();
                 builder.scheme("http")
                         .authority("webapi.allenotify.pl")
-                        .appendPath("Database/ChildrenOfCategory")
+                        .appendPath("api/Database/ChildrenOfCategory")
                         .appendPath(categoryId);
 
 
@@ -637,11 +637,11 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
 
             if (!error) {
                 if (searchId != null) { //PUT
-                    GetTask putData = new GetTask("http://webapi.allenotify.pl/SearchItem/" + searchId, GetTask.PUT, mSearchDetailItem.toJSON());
+                    GetTask putData = new GetTask("http://webapi.allenotify.pl/api/SearchItem/" + searchId, GetTask.PUT, mSearchDetailItem.toJSON());
                     putData.registerListener(this);
                     putData.execute();
                 } else {  //POST
-                    GetTask putData = new GetTask("http://webapi.allenotify.pl/SearchItem/", GetTask.POST, mSearchDetailItem.toJSON());
+                    GetTask putData = new GetTask("http://webapi.allenotify.pl/api/SearchItem/", GetTask.POST, mSearchDetailItem.toJSON());
                     putData.registerListener(this);
                     putData.execute();
                 }

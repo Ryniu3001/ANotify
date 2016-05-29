@@ -3,6 +3,7 @@ package pl.allenotify.anotify;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -18,6 +19,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.iid.FirebaseInstanceId;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -30,6 +33,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import pl.allenotify.anotify.service.MyFirebaseInstanceIDService;
+
 /**
  * Activity logowania użytkownika.
  */
@@ -40,10 +45,12 @@ public class LoginActivity extends AppCompatActivity {
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    public static Context appContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        appContext = getApplicationContext();
         setContentView(R.layout.activity_login);
         mEmailView = (EditText) findViewById(R.id.email);
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -161,6 +168,7 @@ public class LoginActivity extends AppCompatActivity {
         private final String ACCESS_TOKEN = "access_token";
         private final String USER_NAME = "userName";
 
+
         UserLoginTask(String email, String password) {
             mEmail = email;
             mPassword = password;
@@ -187,7 +195,7 @@ public class LoginActivity extends AppCompatActivity {
             String responseJsonStr = null;
 
             try {
-                URL url = new URL("http://webapi.allenotify.pl/account/login");
+                URL url = new URL("http://webapi.allenotify.pl/api/account/login");
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("POST");
                 urlConnection.setRequestProperty("Content-Type", "application/json");
@@ -254,6 +262,11 @@ public class LoginActivity extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 finish(); //LoginActivity won't be needed
                 startActivity(intent);
+
+                String googleApiToken = FirebaseInstanceId.getInstance().getToken();
+                if (googleApiToken != null){
+                    MyFirebaseInstanceIDService.sendGoogleTokenToServer(googleApiToken);
+                }
 
             } else {
 
