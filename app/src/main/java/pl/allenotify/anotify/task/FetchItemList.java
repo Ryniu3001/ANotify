@@ -150,7 +150,7 @@ public class FetchItemList extends AsyncTask<Void, Void, List<UserSearchContent.
             UserSearchContent.UserSearchItem item = new UserSearchContent.UserSearchItem(String.valueOf(ob.getInt(UserSearchContent.ID)),
                     ob.getString(UserSearchContent.NAME),
                     String.valueOf(ob.getInt(UserSearchContent.COUNT_FOUND)), dateString,
-                    String.valueOf(ob.getInt(UserSearchContent.STATUS_ID)));
+                    ob.getString(UserSearchContent.STATUS));
             result.add(item);
         }
 

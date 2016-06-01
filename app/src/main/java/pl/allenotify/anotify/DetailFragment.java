@@ -134,7 +134,7 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
         if (getArguments() != null) {
             searchId = getArguments().getString(ARG_PARAM1);
             searchName = getArguments().getString(ARG_PARAM2);
-            GetTask getSearchDetailTask = new GetTask("http://webapi.allenotify.pl/SearchItem/" + searchId);
+            GetTask getSearchDetailTask = new GetTask("http://webapi.allenotify.pl/api/SearchItem/" + searchId);
             getSearchDetailTask.registerListener(this);
             getSearchDetailTask.execute();
             mLinearMainView.setVisibility(View.GONE);
@@ -350,7 +350,7 @@ public class DetailFragment extends Fragment implements GetTask.GetTaskCaller {
             fillViewsWithData();
             progressBar.setVisibility(View.GONE);
             mLinearMainView.setVisibility(View.VISIBLE);
-        } catch (JSONException | NumberFormatException e) {
+        } catch (JSONException | NumberFormatException | NullPointerException e) {
             e.printStackTrace();
             getActivity().finish();
         }

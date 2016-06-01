@@ -75,9 +75,9 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
 
     @Override
     public void onListFragmentStatusIconInteraction(UserSearchContent.UserSearchItem item) {
-       // Toast.makeText(getApplicationContext(), "Status: " + item.getStatusId(), Toast.LENGTH_SHORT).show();
+       // Toast.makeText(getApplicationContext(), "Status: " + item.getStatus(), Toast.LENGTH_SHORT).show();
         AlertDialog.Builder dlgAlert = new AlertDialog.Builder(this);
-        dlgAlert.setMessage(item.getStatusId());
+        dlgAlert.setMessage(item.getStatus());
         dlgAlert.setTitle("Status");
         dlgAlert.setPositiveButton("OK", null);
         dlgAlert.create().show();

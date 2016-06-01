@@ -15,21 +15,21 @@ public class UserSearchContent {
     public static final String NAME = "Name";
     public static final String DATE = "Date";
     public static final String COUNT_FOUND = "CountFound";
-    public static final String STATUS_ID = "StatusId";
+    public static final String STATUS = "Status";
 
     public static class UserSearchItem {
         private String id;
         private String name;
         private String countFound;
         private String date;
-        private String statusId;
+        private String status;
 
-        public UserSearchItem(String id, String name, String countFound, String date, String statusId) {
+        public UserSearchItem(String id, String name, String countFound, String date, String status) {
             this.id = id;
             this.name = name;
             this.countFound = countFound;
             this.date = date;
-            this.statusId = statusId;
+            this.status = status;
         }
 
         public String getId() {
@@ -60,12 +60,12 @@ public class UserSearchContent {
             this.date = date;
         }
 
-        public String getStatusId() {
-            return statusId;
+        public String getStatus() {
+            return status;
         }
 
         public void setStatusId(String statusId) {
-            this.statusId = statusId;
+            this.status = statusId;
         }
 
         @Override

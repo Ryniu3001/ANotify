@@ -156,7 +156,7 @@ public class MyMainRecyclerViewAdapter extends RecyclerView.Adapter<MyMainRecycl
 
                 builder.scheme("http")
                         .authority("webapi.allenotify.pl")
-                        .appendPath("SearchItem")
+                        .appendPath("api/SearchItem")
                         .appendPath(id);
 
 
